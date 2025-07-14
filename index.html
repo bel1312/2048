@@ -1,79 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2048 Clone</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>2048</h1>
-            <div class="score-container">
-                <div class="score-box">
-                    <div class="score-label">Score</div>
-                    <div id="score">0</div>
-                </div>
-                <div class="score-box">
-                    <div class="score-label">Best</div>
-                    <div id="best-score">0</div>
-                </div>
-                <div class="score-box">
-                    <div class="score-label">Moves</div>
-                    <div id="move-count">0</div>
-                </div>
-            </div>
-        </header>
-        
-        <div class="game-info">
-            <p>Join the numbers and get to the <strong>2048 tile!</strong></p>
-            <button id="new-game-btn" class="btn">New Game</button>
+      <header>
+        <h1>2048</h1>
+        <div class="score-container">
+          <div class="score-box">
+            <div class="score-label">Score</div>
+            <div id="score">0</div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">Best</div>
+            <div id="best-score">0</div>
+          </div>
+          <div class="score-box">
+            <div class="score-label">Moves</div>
+            <div id="move-count">0</div>
+          </div>
         </div>
-        
-        <div class="game-container">
-            <div class="grid-container">
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-                <div class="grid-row">
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                    <div class="grid-cell"></div>
-                </div>
-            </div>
-            <div id="tile-container" class="tile-container"></div>
+      </header>
+
+      <div class="game-info">
+        <p>Join the numbers and get to the <strong>2048 tile!</strong></p>
+        <button id="new-game-btn" class="btn">New Game</button>
+      </div>
+
+      <div class="game-container">
+        <div class="grid-container">
+          <div class="grid-row">
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+          </div>
+          <div class="grid-row">
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+          </div>
+          <div class="grid-row">
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+          </div>
+          <div class="grid-row">
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+            <div class="grid-cell"></div>
+          </div>
         </div>
-        
-        <div class="game-message" id="game-message">
-            <div class="message-content">
-                <div id="message-text"></div>
-                <button id="try-again-btn" class="btn">Try Again</button>
-            </div>
+        <div id="tile-container" class="tile-container"></div>
+      </div>
+
+      <div class="game-message" id="game-message">
+        <div class="message-content">
+          <div id="message-text"></div>
+          <button id="try-again-btn" class="btn">Try Again</button>
         </div>
-        
-        <div class="instructions">
-            <p><strong>HOW TO PLAY:</strong> Use arrow keys or swipe to move tiles. When two tiles with the same number touch, they merge into one!</p>
-            <p><strong>CONTROLS:</strong> Arrow Keys = Move | R = Restart | U = Undo | Space = Dismiss messages</p>
-        </div>
+      </div>
+
+      <div class="instructions">
+        <p>
+          <strong>HOW TO PLAY:</strong> Use arrow keys or swipe to move tiles.
+          When two tiles with the same number touch, they merge into one!
+        </p>
+        <p>
+          <strong>CONTROLS:</strong> Arrow Keys = Move | R = Restart | U = Undo
+          | Space = Dismiss messages
+        </p>
+      </div>
     </div>
-    
+
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
