@@ -37,16 +37,18 @@ h1 {
 
 .score-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .score-box {
   background: #bbada0;
   border-radius: 6px;
   padding: 8px 12px;
-  min-width: 60px;
+  min-width: 50px;
   color: white;
   font-weight: bold;
+  text-align: center;
 }
 
 .score-label {
@@ -194,6 +196,7 @@ h1 {
   color: #cc3300;
   font-size: 24px;
   box-shadow: 0 0 20px #edc22e;
+  animation: pulse 2s infinite;
 }
 
 .tile-merged {
@@ -219,9 +222,53 @@ h1 {
 @keyframes appear {
   0% {
     transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
   }
   100% {
     transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scoreFloat {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -80px) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -120px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(237, 194, 46, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(237, 194, 46, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(237, 194, 46, 0);
   }
 }
 

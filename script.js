@@ -3,10 +3,18 @@ class Game2048 {
         this.grid = Array(4).fill().map(() => Array(4).fill(0));
         this.score = 0;
         this.bestScore = parseInt(localStorage.getItem('best-score')) || 0;
+        this.gameWon = false; // Track if player has won to avoid multiple win messages
+        this.moveCount = 0; // Track number of moves
+        this.gameHistory = []; // For undo functionality
+        
+        // Sound effects (using Web Audio API for better performance)
+        this.audioContext = null;
+        this.initAudio();
         
         this.tileContainer = document.getElementById('tile-container');
         this.scoreElement = document.getElementById('score');
         this.bestScoreElement = document.getElementById('best-score');
+        this.moveCountElement = document.getElementById('move-count');
         this.gameMessage = document.getElementById('game-message');
         this.messageText = document.getElementById('message-text');
         
@@ -15,13 +23,94 @@ class Game2048 {
         this.addRandomTile();
         this.addRandomTile();
         this.updateDisplay();
+        this.showStartupHint();
+    }
+    
+    initAudio() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log('Web Audio API not supported');
+        }
+    }
+    
+    playSound(frequency, duration = 0.1, type = 'sine') {
+        if (!this.audioContext) return;
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = type;
+        
+        gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + duration);
+    }
+    
+    showStartupHint() {
+        // Show a subtle hint for first-time players
+        if (!localStorage.getItem('game-played')) {
+            setTimeout(() => {
+                this.showTemporaryMessage('Use arrow keys or swipe to move tiles!', 3000);
+                localStorage.setItem('game-played', 'true');
+            }, 1000);
+        }
+    }
+    
+    showTemporaryMessage(text, duration = 2000) {
+        const hint = document.createElement('div');
+        hint.textContent = text;
+        hint.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 14px;
+            animation: fadeIn 0.3s ease-in-out;
+        `;
+        document.body.appendChild(hint);
+        
+        setTimeout(() => {
+            hint.style.animation = 'fadeOut 0.3s ease-in-out';
+            setTimeout(() => hint.remove(), 300);
+        }, duration);
     }
     
     setupEventListeners() {
         document.addEventListener('keydown', (e) => {
+            // Arrow keys for movement
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 this.handleMove(e.key);
+            }
+            
+            // 'R' key for restart
+            if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.altKey) {
+                e.preventDefault();
+                this.restart();
+            }
+            
+            // 'U' key for undo (if we implement it)
+            if (e.key.toLowerCase() === 'u' && !e.ctrlKey && !e.altKey) {
+                e.preventDefault();
+                this.undo();
+            }
+            
+            // Space bar to dismiss messages
+            if (e.key === ' ' && this.gameMessage.classList.contains('show')) {
+                e.preventDefault();
+                this.hideMessage();
             }
         });
         
@@ -72,9 +161,14 @@ class Game2048 {
     async handleMove(direction) {
         if (this.animating) return; // Prevent moves during animation
         
+        // Save state before attempting move (for undo)
+        this.saveGameState();
+        
         const previousGrid = this.grid.map(row => [...row]);
         this.mergedTiles = [];
         let moved = false;
+        let scoreGained = 0;
+        const previousScore = this.score;
         
         switch (direction) {
             case 'ArrowLeft':
@@ -92,20 +186,67 @@ class Game2048 {
         }
         
         if (moved) {
+            this.moveCount++;
+            scoreGained = this.score - previousScore;
+            
+            // Play move sound
+            this.playSound(200 + (scoreGained / 10), 0.1);
+            
             this.animating = true;
             await this.animateMove(previousGrid);
             this.addRandomTile();
             this.updateDisplay(); // Show the new tile with appear animation
             this.animating = false;
             
-            if (this.isGameWon()) {
-                this.showMessage('You Win!');
-            } else if (this.isGameOver()) {
-                this.showMessage('Game Over!');
+            // Show score gain animation
+            if (scoreGained > 0) {
+                this.showScoreGain(scoreGained);
             }
+            
+            // Check win condition (but only show message once)
+            if (!this.gameWon && this.isGameWon()) {
+                this.gameWon = true;
+                this.playSound(800, 0.5, 'square'); // Victory sound
+                setTimeout(() => this.showMessage('🎉 You Win! 🎉'), 300);
+            } else if (this.isGameOver()) {
+                this.playSound(100, 1, 'sawtooth'); // Game over sound
+                setTimeout(() => this.showMessage('💀 Game Over! 💀'), 300);
+            }
+        } else {
+            // Invalid move feedback
+            this.playSound(150, 0.05, 'square');
+            this.shakeGrid();
         }
     }
     
+    showScoreGain(points) {
+        const scoreGain = document.createElement('div');
+        scoreGain.textContent = `+${points}`;
+        scoreGain.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f67c5f;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 100;
+            animation: scoreFloat 1s ease-out forwards;
+        `;
+        this.tileContainer.appendChild(scoreGain);
+        
+        setTimeout(() => scoreGain.remove(), 1000);
+    }
+    
+    shakeGrid() {
+        const gameContainer = document.querySelector('.game-container');
+        gameContainer.style.animation = 'shake 0.3s ease-in-out';
+        setTimeout(() => {
+            gameContainer.style.animation = '';
+        }, 300);
+    }
+
     moveLeft() {
         let moved = false;
         for (let row = 0; row < 4; row++) {
@@ -425,6 +566,7 @@ class Game2048 {
         }
         
         this.scoreElement.textContent = this.score;
+        this.moveCountElement.textContent = this.moveCount;
         
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
@@ -479,15 +621,58 @@ class Game2048 {
     }
     
     restart() {
+        // Confirmation for restart if game is in progress
+        if (this.moveCount > 5 && this.score > 100) {
+            if (!confirm('Are you sure you want to restart? Your progress will be lost.')) {
+                return;
+            }
+        }
+        
         this.grid = Array(4).fill().map(() => Array(4).fill(0));
         this.score = 0;
+        this.moveCount = 0;
+        this.gameWon = false;
         this.animating = false;
         this.mergedTiles = [];
         this.lastAddedTile = null;
+        this.gameHistory = []; // Clear undo history
         this.hideMessage();
         this.addRandomTile();
         this.addRandomTile();
         this.updateDisplay();
+        this.playSound(300, 0.2);
+        this.showTemporaryMessage('New game started! Press R to restart, U to undo.', 2000);
+    }
+    
+    // Add undo functionality
+    undo() {
+        if (this.gameHistory.length === 0) {
+            this.showTemporaryMessage('No moves to undo!', 1500);
+            this.playSound(200, 0.1, 'square');
+            return;
+        }
+        
+        const lastState = this.gameHistory.pop();
+        this.grid = lastState.grid;
+        this.score = lastState.score;
+        this.moveCount = Math.max(0, this.moveCount - 1);
+        this.updateDisplay();
+        this.playSound(350, 0.15);
+        this.showTemporaryMessage('Move undone!', 1000);
+    }
+    
+    // Save game state for undo
+    saveGameState() {
+        const state = {
+            grid: this.grid.map(row => [...row]),
+            score: this.score
+        };
+        this.gameHistory.push(state);
+        
+        // Keep only last 3 moves for undo
+        if (this.gameHistory.length > 3) {
+            this.gameHistory.shift();
+        }
     }
 }
 
