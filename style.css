@@ -93,11 +93,16 @@ h1 {
   padding: 10px;
   margin: 20px 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .grid-container {
   position: relative;
   z-index: 1;
+  width: 440px;
+  height: 440px;
 }
 
 .grid-row {
@@ -121,8 +126,8 @@ h1 {
   position: absolute;
   top: 10px;
   left: 10px;
-  right: 10px;
-  bottom: 10px;
+  width: 440px;
+  height: 440px;
   z-index: 2;
 }
 
@@ -142,11 +147,11 @@ h1 {
 
 .tile-2 {
   background: #eee4da;
-  color: #776e65;
+  color: #2c2c2c;
 }
 .tile-4 {
   background: #ede0c8;
-  color: #776e65;
+  color: #2c2c2c;
 }
 .tile-8 {
   background: #f2b179;
@@ -280,6 +285,16 @@ h1 {
 
   h1 {
     font-size: 36px;
+  }
+
+  .grid-container {
+    width: 312px;
+    height: 312px;
+  }
+
+  .tile-container {
+    width: 312px;
+    height: 312px;
   }
 
   .grid-cell,
