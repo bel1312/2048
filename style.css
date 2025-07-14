@@ -67,7 +67,7 @@ h1 {
 .game-info p {
   font-size: 16px;
   margin-bottom: 15px;
-  color: #776e65;
+  color: #ffffff;
 }
 
 .btn {
@@ -191,7 +191,7 @@ h1 {
 }
 .tile-2048 {
   background: #edc22e;
-  color: #f9f6f2;
+  color: #cc3300;
   font-size: 24px;
   box-shadow: 0 0 20px #edc22e;
 }
@@ -270,7 +270,7 @@ h1 {
 
 .instructions {
   margin-top: 20px;
-  color: #776e65;
+  color: #ffffff;
   font-size: 14px;
   max-width: 400px;
   margin-left: auto;
